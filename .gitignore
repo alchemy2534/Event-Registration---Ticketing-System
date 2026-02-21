@@ -1,0 +1,15 @@
+# Binaries
+main.exe
+*.exe
+
+# Database Files
+event_registration.db
+test_db.sqlite
+*.sqlite
+*-wal
+*-shm
+
+# IDE / Editor Files
+.vscode/
+.idea/
+.DS_Store
