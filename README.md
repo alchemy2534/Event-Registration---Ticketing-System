@@ -40,6 +40,33 @@ For maximum transparency and deep-dives into our architectural choices, please r
 
 ---
 
+## 🏗️ System Architecture
+
+Our repository follows a clean, modular Model-View-Controller (MVC) style layering commonly found in enterprise Go applications:
+
+```text
+📦 Event-Registration-System
+ ┣ 📂 cmd/              # Main application entrypoint (main.go)
+ ┣ 📂 internal/         # Private application code (not importable by other projects)
+ ┃ ┣ 📂 handlers/       # HTTP Request Handlers (Parsing JSON, validation)
+ ┃ ┣ 📂 middleware/     # HTTP Middleware (Auth, CORS, Logging)
+ ┃ ┣ 📂 models/         # Core data structs (User, Event, Registration)
+ ┃ ┣ 📂 repository/     # Database operations & locking logic (The Data Layer)
+ ┃ ┗ 📂 services/       # Core business logic connecting handlers <-> repo
+ ┣ 📂 pkg/              # Public facing utilities (Database connector)
+ ┣ 📂 docs/             # Application design documents
+ ┗ 📂 prompts/          # AI Transparency logic
+```
+
+### Architecture Flow Diagram
+1. **Client** completely makes an HTTP request (`POST /api/register`).
+2. **Handlers** route the request, binding the JSON payload to Go Structs.
+3. **Services** validate the business logic (Does the event exist? Is the user valid?).
+4. **Repository** initiates an atomic database transaction using parameterized SQL queries.
+5. **Database (SQLite)** executes the constraint variables (`CHECK` and `UNIQUE`) and returns exactly how many rows were updated.
+
+---
+
 ## 💻 Tech Stack
 
 - **Language**: [Go](https://go.dev/) (Golang)
