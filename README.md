@@ -59,11 +59,28 @@ Our repository follows a clean, modular Model-View-Controller (MVC) style layeri
 ```
 
 ### Architecture Flow Diagram
-1. **Client** completely makes an HTTP request (`POST /api/register`).
-2. **Handlers** route the request, binding the JSON payload to Go Structs.
-3. **Services** validate the business logic (Does the event exist? Is the user valid?).
-4. **Repository** initiates an atomic database transaction using parameterized SQL queries.
-5. **Database (SQLite)** executes the constraint variables (`CHECK` and `UNIQUE`) and returns exactly how many rows were updated.
+
+![Architecture Flow Diagram](flow_diagram.png)
+
+1. **Client (Browser / Mobile Application)**
+   - Makes the initial HTTP request (`POST /api/register`).
+2. **HTTP Handler Layer (`internal/handler/`)**
+   - **Request Parsing**: Binds incoming JSON payloads to Go Structs.
+   - **Input Validation**: Ensures valid user input and headers.
+   - **Route Management**: Directs API traffic correctly.
+3. **Service Layer (`internal/service/`)**
+   - **Business Logic**: Validates event existence and capacity rules.
+   - **Transaction Control**: Manages the flow of the booking process.
+   - **Orchestration**: Communicates between the HTTP handlers and the repository layer.
+4. **Repository Layer (`internal/repository/`)**
+   - **Atomic SQL Execution**: Directly prepares and executes the data queries.
+   - **Conditional Update Logic**: Specifically applies `WHERE available_spots > 0`.
+   - **rowsAffected Handling**: Verifies if concurrent modifications succeeded.
+5. **SQLite Database**
+   - **ACID Transactions**: Guarantees registration integrity.
+   - **Serializable Isolation**: Ensures transactions run sequentially without interference.
+   - **CHECK & UNIQUE Constraints**: Physically blocks mathematical negative capacities and duplicate users.
+   - **Row-Level Locking**: Isolates the event row while evaluating capacity.
 
 ---
 
